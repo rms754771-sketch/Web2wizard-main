@@ -2,7 +2,7 @@ import { FormEvent, ReactNode, useEffect, useMemo, useState } from 'react'
 
 type BuildRecord = { name: string; url: string; version: string; status: string; installer: string; time: string }
 type HostState = { connected: boolean; builds: BuildRecord[]; outputDirectory: string; tools: { dotnet: boolean; webView2: boolean }; building: boolean }
-declare global { interface Window { chrome?: { webview?: { postMessage: (message: unknown) => void; addEventListener: (name: string, callback: (event: MessageEvent) => void) => void } } } }
+declare global { interface Window { chrome?: { webview?: { postMessage: (message: unknown) => void; addEventListener: (name: string, callback: (event: MessageEvent) => void) => void; removeEventListener: (name: string, callback: (event: MessageEvent) => void) => void } } } }
 const sendHostMessage = (type: string, data: Record<string, unknown> = {}) => window.chrome?.webview?.postMessage({ type, ...data })
 
 type View = 'dashboard' | 'create' | 'history' | 'settings' | 'about'
@@ -129,7 +129,7 @@ function CreateApplication() {
     } catch { return 'invalid' }
   }, [url])
   const host = urlState === 'valid' ? new URL(url).hostname : ''
-  useEffect(() => { const handler = (event: MessageEvent) => { if (event.data?.type === 'buildFinished') setSubmitting(false); if (event.data?.type === 'buildError') { setSubmitting(false); setServiceError(true) } }; window.chrome?.webview?.addEventListener('message', handler) }, [])
+  useEffect(() => { const webview = window.chrome?.webview; if (!webview) return; const handler = (event: MessageEvent) => { if (event.data?.type === 'buildFinished') setSubmitting(false); if (event.data?.type === 'buildError') { setSubmitting(false); setServiceError(true) } }; webview.addEventListener('message', handler); return () => webview.removeEventListener('message', handler) }, [])
 
   const submit = (e: FormEvent) => {
     e.preventDefault()
@@ -214,8 +214,10 @@ export default function App() {
       if (data?.type === 'toolsUpdated') setHostState(s => ({ ...s, tools: data.tools }))
       if (data?.type === 'settingsSaved') setHostState(s => ({ ...s, outputDirectory: data.outputDirectory }))
     }
-    window.chrome?.webview?.addEventListener('message', handler)
+    const webview = window.chrome?.webview
+    webview?.addEventListener('message', handler)
     sendHostMessage('ready')
+    return () => webview?.removeEventListener('message', handler)
   }, [])
   useEffect(() => { window.scrollTo({ top: 0, behavior: 'smooth' }) }, [view])
   return <div className="app-shell"><Sidebar view={view} setView={setView} open={menuOpen} close={() => setMenuOpen(false)} /><main><Header view={view} connected={hostState.connected} openMenu={() => setMenuOpen(true)} />
