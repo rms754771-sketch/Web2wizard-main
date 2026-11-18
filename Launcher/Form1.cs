@@ -41,6 +41,7 @@ public partial class Form1 : Form
         buildWorker.RunWorkerCompleted += BuildWorker_RunWorkerCompleted;
         buildWorker.ProgressChanged += BuildWorker_ProgressChanged;
         buildWorker.WorkerReportsProgress = true;
+        InitializeWebUi();
     }
 
     private void UpdateStatus(string message, bool append = false)
@@ -48,6 +49,7 @@ public partial class Form1 : Form
         if (lblStatus.InvokeRequired)
         {
             lblStatus.Invoke(() => UpdateStatus(message, append));
+            return;
         }
         else
         {
@@ -56,6 +58,7 @@ public partial class Form1 : Form
             else
                 lblStatus.Text = message;
         }
+        PublishWebUiStatus(message);
     }
 
     private void UpdateProgress(int percentage)
@@ -63,11 +66,13 @@ public partial class Form1 : Form
         if (progressBar1.InvokeRequired)
         {
             progressBar1.Invoke(() => UpdateProgress(percentage));
+            return;
         }
         else
         {
             progressBar1.Value = Math.Min(100, Math.Max(0, percentage));
         }
+        PublishWebUiProgress(percentage, null);
     }
 
     private void txtUrl_TextChanged(object? sender, EventArgs e)
@@ -604,6 +609,7 @@ public partial class Form1 : Form
     private void BuildWorker_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
     {
         btnGenerate.Enabled = true;
+        HandleWebUiBuildCompleted(e);
 
         if (e.Error != null)
         {
