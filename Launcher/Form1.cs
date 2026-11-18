@@ -48,25 +48,25 @@ public partial class Form1 : Form
     {
         if (lblStatus.InvokeRequired)
         {
-            lblStatus.Invoke(() => UpdateStatus(message, append));
-            return;
+            lblStatus.Invoke(new Action(() =>
+            {
+                if (append) lblStatus.Text += Environment.NewLine + message;
+                else lblStatus.Text = message;
+            }));
         }
         else
         {
-            if (append)
-                lblStatus.Text += Environment.NewLine + message;
-            else
-                lblStatus.Text = message;
+            if (append) lblStatus.Text += Environment.NewLine + message;
+            else lblStatus.Text = message;
         }
         PublishWebUiStatus(message);
     }
 
-    private void UpdateProgress(int percentage)
+        private void UpdateProgress(int percentage)
     {
         if (progressBar1.InvokeRequired)
         {
-            progressBar1.Invoke(() => UpdateProgress(percentage));
-            return;
+            progressBar1.Invoke(new Action(() => progressBar1.Value = Math.Min(100, Math.Max(0, percentage))));
         }
         else
         {
@@ -75,7 +75,7 @@ public partial class Form1 : Form
         PublishWebUiProgress(percentage, null);
     }
 
-    private void txtUrl_TextChanged(object? sender, EventArgs e)
+        private void txtUrl_TextChanged(object? sender, EventArgs e)
     {
         // Debounce: cancel previous and wait 500ms before fetching
         iconCts?.Cancel();
