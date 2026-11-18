@@ -54,6 +54,13 @@ public partial class Form1
             webUi.CoreWebView2.Settings.AreDevToolsEnabled = false;
             webUi.CoreWebView2.Settings.IsStatusBarEnabled = false;
             webUi.CoreWebView2.WebMessageReceived += WebUi_WebMessageReceived;
+            webUi.CoreWebView2.NavigationStarting += (_, e) =>
+            {
+                if (!Uri.TryCreate(e.Uri, UriKind.Absolute, out var navigationUri) ||
+                    navigationUri.Scheme != Uri.UriSchemeHttps ||
+                    !navigationUri.Host.Equals("appassets.web2exe", StringComparison.OrdinalIgnoreCase))
+                    e.Cancel = true;
+            };
             webUi.CoreWebView2.NewWindowRequested += (_, e) =>
             {
                 e.Handled = true;
@@ -72,6 +79,11 @@ public partial class Form1
 
     private void WebUi_WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
     {
+        if (!Uri.TryCreate(e.Source, UriKind.Absolute, out var sourceUri) ||
+            sourceUri.Scheme != Uri.UriSchemeHttps ||
+            !sourceUri.Host.Equals("appassets.web2exe", StringComparison.OrdinalIgnoreCase))
+            return;
+
         try
         {
             using JsonDocument message = JsonDocument.Parse(e.WebMessageAsJson);
