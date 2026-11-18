@@ -1,46 +1,50 @@
 # Web2EXE Wizard
 
-Convert any website into a Windows desktop application.
+Convert websites into Windows desktop applications using a React interface hosted by the existing C# WinForms application.
 
 ## Features
 
-- Convert websites into native Windows apps
-- Automatic icon download from website favicon
-- WebView2-based desktop applications
+- Figma-designed React interface hosted by Microsoft WebView2
+- Allowlisted WebView2 message bridge to the C# desktop host
+- Automatic website favicon download
+- WebView2-based Windows application generation
 - Portable ZIP output
-- Version management
-- Auto-update manifest generation
-- Custom application names
+- Custom C# Windows installer EXE (no Inno Setup or WiX dependency)
+- Version management and update manifest generation
+- Local build history and output-directory preferences
 
 ## Requirements
 
 - Windows 10/11
-- .NET 8 SDK for building applications
+- .NET 8 SDK
+- Node.js 22 or later and npm (used to compile the React interface during the Launcher build)
 - Microsoft Edge WebView2 Runtime
 
 WebView2 Runtime:
 https://developer.microsoft.com/microsoft-edge/webview2/
 
-## How to Use
+## Build and run
 
-1. Enter an application name.
-2. Enter a website URL.
-3. Wait for the icon preview to load.
-4. Click Generate.
-5. After generation completes, open:
+Open Launcher/Launcher.csproj in Visual Studio 2026, restore NuGet packages, and build. The MSBuild BuildWebUi target installs the WebUI npm dependencies and compiles the React application into Launcher/wwwroot. The generated web assets are copied to the Launcher build and publish output directories.
 
-Template/GeneratedApp/portable
+Run the Launcher project. Its WebView2 window hosts the local React UI; C# remains responsible for privileged operations, including publishing, portable ZIP creation, custom installer generation, folder selection, and opening output folders.
 
-The ZIP file is named using the application name and version, for example:
+## Create an application
 
-`MyApplication-1.0.1-Portable.zip`
+1. Open Create Application.
+2. Enter an application name and an HTTP or HTTPS website URL.
+3. Select Create Application.
+4. The existing C# build pipeline generates the Windows application, a portable ZIP, and a custom installer EXE. If installer generation fails, the successfully created ZIP is retained.
+5. Open Build History or Settings to view build results and configure the output directory.
 
-## Run a Portable Application
+Generated files are stored under the selected output directory in GeneratedApp/portable.
 
-1. Extract the ZIP archive to a folder.
+## Run a portable application
+
+1. Extract the portable ZIP archive to a folder.
 2. Keep all extracted files together.
-3. Run the generated application executable from the extracted folder.
-4. The generated application will open the configured website in WebView2.
+3. Run the generated application executable.
+4. The generated application opens the configured website in WebView2.
 
 ## Developer
 

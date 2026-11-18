@@ -41,36 +41,41 @@ public partial class Form1 : Form
         buildWorker.RunWorkerCompleted += BuildWorker_RunWorkerCompleted;
         buildWorker.ProgressChanged += BuildWorker_ProgressChanged;
         buildWorker.WorkerReportsProgress = true;
+        InitializeWebUi();
     }
 
     private void UpdateStatus(string message, bool append = false)
     {
         if (lblStatus.InvokeRequired)
         {
-            lblStatus.Invoke(() => UpdateStatus(message, append));
+            lblStatus.Invoke(new Action(() =>
+            {
+                if (append) lblStatus.Text += Environment.NewLine + message;
+                else lblStatus.Text = message;
+            }));
         }
         else
         {
-            if (append)
-                lblStatus.Text += Environment.NewLine + message;
-            else
-                lblStatus.Text = message;
+            if (append) lblStatus.Text += Environment.NewLine + message;
+            else lblStatus.Text = message;
         }
+        PublishWebUiStatus(message);
     }
 
-    private void UpdateProgress(int percentage)
+        private void UpdateProgress(int percentage)
     {
         if (progressBar1.InvokeRequired)
         {
-            progressBar1.Invoke(() => UpdateProgress(percentage));
+            progressBar1.Invoke(new Action(() => progressBar1.Value = Math.Min(100, Math.Max(0, percentage))));
         }
         else
         {
             progressBar1.Value = Math.Min(100, Math.Max(0, percentage));
         }
+        PublishWebUiProgress(percentage, null);
     }
 
-    private void txtUrl_TextChanged(object? sender, EventArgs e)
+        private void txtUrl_TextChanged(object? sender, EventArgs e)
     {
         // Debounce: cancel previous and wait 500ms before fetching
         iconCts?.Cancel();
@@ -604,6 +609,7 @@ public partial class Form1 : Form
     private void BuildWorker_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
     {
         btnGenerate.Enabled = true;
+        HandleWebUiBuildCompleted(e);
 
         if (e.Error != null)
         {
