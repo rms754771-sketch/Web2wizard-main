@@ -15,7 +15,7 @@
     <EmbeddedResource Remove="Template\**\*" />
     <None Remove="Template\**\*" />
   </ItemGroup>
-  <Target Name="BuildWebUi" BeforeTargets="PrepareForBuild">
+  <Target Name="BuildWebUi" BeforeTargets="PrepareForBuild" Condition="'$(DesignTimeBuild)' != 'true'">
     <Exec WorkingDirectory="$(MSBuildProjectDirectory)\..\WebUI" Command="npm install --no-audit --no-fund" />
     <Exec WorkingDirectory="$(MSBuildProjectDirectory)\..\WebUI" Command="npm run build" />
   </Target>
