@@ -1,5 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -10,10 +9,22 @@
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
     <StartupObject>Launcher.Program</StartupObject>
   </PropertyGroup>
-<ItemGroup>
-  <Compile Remove="Template\**\*.cs" />
-  <EmbeddedResource Remove="Template\**\*" />
-  <None Remove="Template\**\*" />
-</ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3595.46" />
+    <Compile Remove="Template\**\*.cs" />
+    <EmbeddedResource Remove="Template\**\*" />
+    <None Remove="Template\**\*" />
+  </ItemGroup>
+  <Target Name="BuildWebUi" BeforeTargets="PrepareForBuild">
+    <Exec WorkingDirectory="$(MSBuildProjectDirectory)\..\WebUI" Command="npm install --no-audit --no-fund" />
+    <Exec WorkingDirectory="$(MSBuildProjectDirectory)\..\WebUI" Command="npm run build" />
+  </Target>
+  <Target Name="CopyWebUiToBuildOutput" AfterTargets="Build">
+    <ItemGroup><WebUiFiles Include="$(MSBuildProjectDirectory)\wwwroot\**\*" /></ItemGroup>
+    <Copy SourceFiles="@(WebUiFiles)" DestinationFiles="@(WebUiFiles->'$(OutDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="CopyWebUiToPublishOutput" AfterTargets="Publish">
+    <ItemGroup><PublishedWebUiFiles Include="$(MSBuildProjectDirectory)\wwwroot\**\*" /></ItemGroup>
+    <Copy SourceFiles="@(PublishedWebUiFiles)" DestinationFiles="@(PublishedWebUiFiles->'$(PublishDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
 </Project>
