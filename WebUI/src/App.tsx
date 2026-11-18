@@ -96,7 +96,7 @@ function StatCard({ title, value, detail, icon, accent }: { title: string; value
     <div className={`stat-icon ${accent}`}><Icon name={icon} size={20} /></div>
     <div className="stat-title">{title}</div>
     <strong className="stat-value">{value}</strong>
-    <div className="stat-detail"><span className={accent === 'red' ? 'negative' : ''}>{accent === 'red' ? '1 issue' : '+2 this month'}</span> {detail}</div>
+    <div className="stat-detail">{detail}</div>
   </article>
 }
 
@@ -194,7 +194,7 @@ function About() {
   return <div className="content about-content">
     <section className="panel about-card">
       <div className="about-top"><div className="about-logo"><AppMark /></div><div><h2>Web2EXE Wizard</h2><p>Website to Windows application builder</p><span>VERSION 1.0.0</span></div></div>
-      <div className="about-body"><h3>Bring the web to the desktop.</h3><p>Web2EXE Wizard provides a focused workspace for turning websites into standalone Windows applications and creating distribution-ready installers.</p><p>This interface is designed to connect with your existing C# application services for compilation, packaging, and installer generation.</p></div>
+      <div className="about-body"><h3>Bring the web to the desktop.</h3><p>Web2EXE Wizard provides a focused workspace for turning websites into standalone Windows applications and creating distribution-ready installers.</p><p>The interface is hosted by your existing C# desktop application, which remains responsible for compilation, packaging, and installer generation.</p></div>
       <div className="about-features"><div><Icon name="globe" /><span><b>Web powered</b><small>Built around WebView2</small></span></div><div><Icon name="shield" /><span><b>Windows native</b><small>Designed for Windows 10 & 11</small></span></div><div><Icon name="package" /><span><b>Installer ready</b><small>Custom C# installer builder</small></span></div></div>
       <div className="about-foot"><span>© 2026 Web2EXE Wizard</span><span>React interface · Native C# build services</span></div>
     </section>
